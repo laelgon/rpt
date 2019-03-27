@@ -1,0 +1,43 @@
+html, body, .App {
+  height: 100%;
+}
+
+.terminal {
+  height: 90%;
+  width: 100%;
+  color: white;
+  background-color: black;
+  text-align: left;
+  overflow-scrolling: auto;
+}
+
+.control {
+  width: 100%;
+  position: absolute;
+  bottom: 0px;
+  background-color: lightgray;
+  height: 10%;
+  text-align: left;
+  padding: 10px;
+}
+
+.control > .form-control {
+  position: relative;
+  float: left;
+  width: 50%;
+}
+
+.control > button {
+  position: relative;
+  float: left;
+  margin-left: 10px;
+}
+
+@keyframes App-logo-spin {
+  from {
+    transform: rotate(0deg);
+  }
+  to {
+    transform: rotate(360deg);
+  }
+}
