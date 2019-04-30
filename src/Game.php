@@ -1,13 +1,22 @@
 <?php
 
+
 namespace Rpt;
 
-use Rpt\Race\Human;
+
 use Rpt\Klass\Fighter;
 use Rpt\Klass\Wizard;
+use Rpt\Race\Human;
 
 class Game
 {
+  private $active = TRUE;
+
+  /**
+   * @var IProcess
+   */
+  private $process = NULL;
+
   private $characters;
 
   public function __construct(array $characters)
@@ -15,28 +24,44 @@ class Game
     $this->characters = $characters;
   }
 
-  public function getCharacters(): array
-  {
-    return $this->characters;
+  public function isActive() {
+    return $this->active;
   }
 
-  public function chooseACharacterMessage() {
-    $message = (object) [];
-
-    $message->type = "select";
-    $message->prompt = "Choose a character:";
-    $message->options = [];
-
-    /* @var $character \Rpt\Character */
-    foreach ($this->characters as $character) {
-      $message->options[] = $character->getName();
+  public function prompt() {
+    if ($this->process) {
+      if ($this->process->isActive()) {
+        return $this->process->prompt();
+      }
+      else {
+        $this->process = NULL;
+      }
     }
 
-    return json_encode($message);
+    return ['message' => ["Menu"], 'options' => [1 => "Combat", 2 => "Exit"]];
   }
 
-  public static function get()
-  {
+  public function input($input) {
+    if ($this->process) {
+      if ($this->process->isActive()) {
+        return $this->process->input($input);
+      }
+      else {
+        $this->process = NULL;
+      }
+    }
+
+    // Combat
+    if ($input == 1) {
+      $this->process = new Combat($this->characters);
+    }
+    // Exit
+    elseif ($input == 2) {
+      $this->active = FALSE;
+    }
+  }
+
+  public static function get() {
     $characters = [];
 
     $abilities = new Abilities([15, 8, 14, 10, 12, 13]);
@@ -53,7 +78,5 @@ class Game
 
     return new self($characters);
   }
-
-
 
 }

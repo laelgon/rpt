@@ -2,26 +2,18 @@
 
 include 'vendor/autoload.php';
 
+$characters =
 
+$game = \Rpt\Game::get();
+$cli = new \Rpt\IO\Console();
 
-
-
-echo PHP_EOL;
-echo "{$lacross}";
-echo PHP_EOL;
-
-
-
-echo PHP_EOL;
-echo "{$jadis}";
-echo PHP_EOL;
-
-echo PHP_EOL;
-
-$combat = new \Rpt\Combat();
-$combat->setAttacker($jadis);
-$combat->setDefender($lacross);
-$combat->toTheDeath();
+while ($game->isActive()) {
+  $user_input = $cli->prompt($game->prompt());
+  $result = $game->input($user_input);
+  if ($result) {
+    $game->out($result);
+  }
+}
 
 
 
