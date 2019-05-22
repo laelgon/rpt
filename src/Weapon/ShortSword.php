@@ -3,7 +3,6 @@ namespace Rpt\Weapon;
 
 use Rpt\Dice\Di;
 use Rpt\Dice\Dice;
-use Rpt\Weapon\Weapon;
 
 class ShortSword extends Weapon
 {

@@ -10,6 +10,9 @@ class Human extends Race
 
   public function __construct(string $language)
   {
+    if ($language == "Common") {
+      throw new \Exception("Humans naturally speak Common, choose another language.");
+    }
     parent::__construct("Medium", 30);
     $this->addLanguage("Common");
     $this->addLanguage($language);
@@ -17,7 +20,7 @@ class Human extends Race
 
   public function subscribeMeToEvents(): array
   {
-    $events = [];
+    $events = ['get.languages'];
     foreach (Abilities::$abilities as $ability) {
       $events[] = "increase.ability.{$ability}";
     }
@@ -25,7 +28,14 @@ class Human extends Race
   }
 
   public function respondToEvent(Collector $event) {
-    $event->addValue(1);
+    if ($event->getName() === 'get.languages') {
+      foreach ($this->getLanguages() as $language) {
+        $event->addValue($language);
+      }
+    }
+    else {
+      $event->addValue(1);
+    }
   }
 
   public function __toString()

@@ -1,0 +1,12 @@
+Blah
+Human Fighter Lv.1 (0 exp.) Acolyte
+Abilities: strength: +0 (11) dexterity: +0 (11) constitution: +0 (11) intelligence: +0 (11) wisdom: +0 (11) charisma: +0 (11)
+Skills: acrobatics: +0 animal handling: +0 arcana: +0 athletics: +0 deception: +0 history: +0 insight: +2 intimidation: +0 investigation: +0 medicine: +0 nature: +0 perception: +0 performance: +0 persuasion: +0 religion: +2 sleight of hand: +0 stealth: +0 survival: +0
+Saving Throws: strength: +0 dexterity: +0 constitution: +0 intelligence: +0 wisdom: +0 charisma: +0
+Proficiency Bonus: +2
+Armor Class (AC): 16
+Initiative: +0
+Hit Points: 10/10
+Hit Dice: 1d10
+Proficiencies: type.simple, type.martial
+Languages: Common, Dwarvish, Elvish, Infernal

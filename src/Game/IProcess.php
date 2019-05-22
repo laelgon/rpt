@@ -1,7 +1,7 @@
 <?php
 
 
-namespace Rpt;
+namespace Rpt\Game;
 
 
 interface IProcess

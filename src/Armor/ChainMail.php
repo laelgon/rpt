@@ -1,18 +1,11 @@
 <?php
+
 namespace Rpt\Armor;
 
-use Rpt\Event\Collector;
-use Rpt\Event\IEventsConsumer;
-
-class ChainMail implements IEventsConsumer
+class ChainMail extends Armor
 {
-  public function subscribeMeToEvents(): array
+  function getArmorClass()
   {
-    return ['set.armor.class'];
-  }
-
-  public function respondToEvent(Collector $event)
-  {
-    $event->addValue(16);
+    return 16;
   }
 }

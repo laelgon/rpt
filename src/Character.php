@@ -2,6 +2,7 @@
 
 namespace Rpt;
 
+use Rpt\Background\Background;
 use Rpt\Event\EventsConnector;
 use Rpt\Event\EventsSource;
 use Rpt\Event\IEventsSource;
@@ -17,13 +18,15 @@ class Character implements IEventsSource {
   private $name;
   private $race;
   private $klass;
+  private $background;
   private $experience = 0;
   private $abilities;
+  private $skills;
   private $equipment = [];
 
   private $damage = 0;
 
-  public function __construct(string $name, Race $race, Klass $klass, Abilities $abilities)
+  public function __construct(string $name, Race $race, Klass $klass, Background $background, Abilities $abilities)
   {
     $this->initializeEventSourcing();
 
@@ -31,8 +34,10 @@ class Character implements IEventsSource {
     $this->abilities = $abilities;
     $this->race = $race;
     $this->klass = $klass;
+    $this->background = $background;
+    $this->skills = new Skills($this->abilities, $this->klass);
 
-    EventsConnector::connect([$this, $this->race, $this->abilities, $this->klass]);
+    EventsConnector::connect([$this, $this->race, $this->abilities, $this->skills, $this->klass, $this->background]);
 
     $this->equip(new Unarmed());
   }
@@ -41,8 +46,16 @@ class Character implements IEventsSource {
     return $this->name;
   }
 
+  public function getSkills() {
+    return $this->skills;
+  }
+
   public function getAbilityScore($ability) {
     return $this->abilities->getScore($ability);
+  }
+
+  public function getAbilityModifier($ability) {
+    return $this->abilities->getModifier($ability);
   }
 
   public function getArmorClass() {
@@ -79,7 +92,9 @@ class Character implements IEventsSource {
   {
     return [
       'set.armor.class',
-      'get.proficiencies.weapon'
+      'get.proficiencies.weapon',
+      'get.proficiencies.saving_throws',
+      'get.languages',
     ];
   }
 
@@ -97,7 +112,7 @@ class Character implements IEventsSource {
   }
 
   public function hasProficiencyWithWeapon(Weapon $weapon) {
-    $proficiencies = $this->fireEvent('get.proficiencies.weapon');
+    $proficiencies = $this->getWeaponProficiencies();
 
     $mine = ["{$weapon}", "type.{$weapon->getType()}"];
 
@@ -107,6 +122,10 @@ class Character implements IEventsSource {
       }
     }
     return FALSE;
+  }
+
+  public function getWeaponProficiencies() {
+    return $this->fireEvent('get.proficiencies.weapon');
   }
 
   public function getWeaponAbility(Weapon $weapon) {
@@ -144,10 +163,32 @@ class Character implements IEventsSource {
     return $this->klass->getProficiencyBonus();
   }
 
+  public function getSavingThrowProficiencies() {
+    return $this->fireEvent('get.proficiencies.saving_throws');
+  }
+
+  public function getSavingThrowModifier($ability) {
+    $modifier = $this->getAbilityModifier($ability);
+    $proficiencies = $this->getSavingThrowProficiencies();
+    if (in_array($ability, $proficiencies)) {
+      return $modifier + $this->getProficiencyBonus();
+    }
+    else {
+      return $modifier;
+    }
+  }
+
+  public function getLanguages() {
+    $languages = $this->fireEvent('get.languages');
+    sort($languages);
+    return $languages;
+  }
+
   public function __toString() {
     $text = [];
     $text[] = $this->name;
-    $text[] = "{$this->race} {$this->klass} Lv.{$this->klass->getLevel()} ($this->experience exp.)";
+    $text[] = "{$this->race} {$this->klass} Lv.{$this->klass->getLevel()} ($this->experience exp.) {$this->background}";
+
     $abilities = [];
     foreach (Abilities::$abilities as $ability) {
       $score = $this->abilities->getScore($ability);
@@ -155,15 +196,34 @@ class Character implements IEventsSource {
       $modifier = ($modifier >= 0) ? "+{$modifier}" : $modifier;
       $abilities[] = "{$ability}: {$modifier} ({$score})";
     }
+    $text[] = "Abilities: " . implode(" ", $abilities);
 
-    $text[] = implode(" ", $abilities);
+    $skills = [];
+    foreach (Skills::$skills as $skill) {
+      $modifier = $this->skills->getModifier($skill);
+      $modifier = ($modifier >= 0) ? "+{$modifier}" : $modifier;
+      $skills[] = "{$skill}: {$modifier}";
+    }
+    $text[] = "Skills: " . implode(" ", $skills);
+
+    $saving_throws = [];
+    foreach (Abilities::$abilities as $ability) {
+      $modifier = $this->getSavingThrowModifier($ability);
+      $modifier = ($modifier >= 0) ? "+{$modifier}" : $modifier;
+      $saving_throws[] = "{$ability}: {$modifier}";
+    }
+    $text[] = "Saving Throws: " . implode(" ", $saving_throws);
+
     $text[] = "Proficiency Bonus: +{$this->getProficiencyBonus()}";
     $text[] = "Armor Class (AC): {$this->getArmorClass()}";
-    $text[] = "Initiative: {$this->getInitiative()}";
-    $text[] = "Hit Point Maximum: {$this->getHitPointMaximum()}";
-    $text[] = "Current Hit Points: {$this->getCurrentHitPoints()}";
+    $text[] = "Initiative: +{$this->getInitiative()}";
+    $text[] = "Hit Points: {$this->getCurrentHitPoints()}/{$this->getHitPointMaximum()}";
+    $text[] = "Hit Dice: {$this->klass->getHitDice()}";
 
-    $languages = implode(", ", $this->race->getLanguages());
+    $weapon_proficiencies = implode(", ", $this->getWeaponProficiencies());
+    $text[] = "Proficiencies: {$weapon_proficiencies}";
+
+    $languages = implode(", ", $this->getLanguages());
     $text[] = "Languages: {$languages}";
 
     return implode(PHP_EOL, $text);

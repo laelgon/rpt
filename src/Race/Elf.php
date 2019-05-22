@@ -17,11 +17,23 @@ class Elf extends Race
     if ($event->getName() === 'increase.ability.dexterity') {
       $event->addValue(2);
     }
+    elseif ($event->getName() === 'get.proficiencies.skill') {
+      $event->addValue('perception');
+    }
+    elseif ($event->getName() === 'get.languages') {
+      foreach ($this->getLanguages() as $language) {
+        $event->addValue($language);
+      }
+    }
   }
 
   public function subscribeMeToEvents(): array
   {
-    return ['increase.ability.dexterity'];
+    return [
+      'increase.ability.dexterity',
+      'get.proficiencies.skill',
+      'get.languages'
+    ];
   }
 
   public function __toString()

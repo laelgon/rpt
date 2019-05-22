@@ -26,4 +26,12 @@ class Console
       }
     }
   }
+
+  public function out(array $output) {
+    print_r(PHP_EOL);
+    foreach ($output as $line) {
+      print_r($line . PHP_EOL);
+    }
+    print_r(PHP_EOL);
+  }
 }

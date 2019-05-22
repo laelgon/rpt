@@ -52,7 +52,6 @@ abstract class Weapon {
     }
 
     if ($this->rollIsValid($roll)) {
-      print_r("Damage from {$this->name} attack {$roll} ({$this->getDamageDice()})" . PHP_EOL);
       return $roll;
     }
     else {
