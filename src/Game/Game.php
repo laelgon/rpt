@@ -104,7 +104,7 @@ class Game implements IProcess
       new Acolyte(['Dwarvish', "Goblin"]),
       $abilities
     );
-    $lacross->equip(new \Rpt\Armor\Armor());
+    $lacross->equip(new \Rpt\Armor\ChainMail());
 
     $abilities = new Abilities([10, 13, 14, 15, 12, 8]);
     $jadis = new Character(
